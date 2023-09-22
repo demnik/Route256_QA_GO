@@ -1,0 +1,101 @@
+docker-compose -p ozon_route256 up -d
+#0 building with "default" instance using docker driver
+
+#1 [act-device-api internal] load .dockerignore
+#1 transferring context: 2B 0.0s done
+#1 DONE 0.0s
+
+#2 [act-device-api internal] load build definition from Dockerfile
+#2 transferring dockerfile: 752B 0.0s done
+#2 DONE 0.1s
+
+#3 [act-device-api internal] load metadata for docker.io/library/golang:1.20-alpine
+#3 DONE 2.0s
+
+#4 [act-device-api internal] load metadata for docker.io/library/alpine:latest
+#4 DONE 2.0s
+
+#5 [act-device-api builder 1/5] FROM docker.io/library/golang:1.20-alpine@sha256:c63dbdb3cca37abbee4c50f61e34b1d043c2669d03f34485f9ee6fe5feed4e48
+#5 DONE 0.0s
+
+#6 [act-device-api server 1/8] FROM docker.io/library/alpine:latest@sha256:7144f7bab3d4c2648d7e59409f15ec52a18006a128c733fcff20d3a4a54ba44a
+#6 DONE 0.0s
+
+#7 [act-device-api internal] load build context
+#7 transferring context: 125.86kB 0.1s done
+#7 DONE 0.1s
+
+#8 [act-device-api builder 2/5] RUN apk add --update make curl git protoc protobuf protobuf-dev
+#8 CACHED
+
+#9 [act-device-api builder 3/5] COPY . /home/
+#9 DONE 0.5s
+
+#10 [act-device-api builder 4/5] WORKDIR /home/
+#10 DONE 0.0s
+
+#11 [act-device-api builder 5/5] RUN make deps-go && make build-go
+#11 0.802 go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.27.1
+#11 1.519 go: downloading google.golang.org/protobuf v1.27.1
+#11 23.68 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1.0
+#11 24.13 go: downloading google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
+#11 27.92 go: downloading google.golang.org/protobuf v1.23.0
+#11 34.27 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.5.0
+#11 34.86 go: downloading github.com/grpc-ecosystem/grpc-gateway/v2 v2.5.0
+#11 53.26 go: downloading google.golang.org/protobuf v1.26.0
+#11 53.27 go: downloading github.com/golang/glog v0.0.0-20210429001901-424d2337a529
+#11 53.39 go: downloading github.com/ghodss/yaml v1.0.0
+#11 53.61 go: downloading google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced
+#11 53.92 go: downloading gopkg.in/yaml.v2 v2.2.2
+#11 58.01 go: downloading github.com/golang/protobuf v1.5.2
+#11 67.43 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.5.0
+#11 71.91 go install github.com/envoyproxy/protoc-gen-validate@"v0.6.1"
+#11 72.32 go: downloading github.com/envoyproxy/protoc-gen-validate v0.6.1
+#11 74.53 go: downloading github.com/lyft/protoc-gen-star v0.5.1
+#11 74.53 go: downloading github.com/iancoleman/strcase v0.0.0-20180726023541-3605ed457bf7
+#11 74.69 go: downloading github.com/spf13/afero v1.3.4
+#11 74.84 go: downloading golang.org/x/text v0.3.3
+#11 90.19 go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
+#11 91.20 go: downloading github.com/grpc-ecosystem/grpc-gateway v1.16.0
+#11 91.97 go: downloading github.com/golang/protobuf v1.3.3
+#11 91.97 go: downloading github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+#11 92.38 go: downloading google.golang.org/genproto v0.0.0-20200513103714-09dca8ec2884
+#11 92.39 go: downloading gopkg.in/yaml.v2 v2.2.3
+#11 101.0 Install buf
+#11 104.8 /go/bin/buf generate
+#11 105.2 go mod download && CGO_ENABLED=0  go build \
+#11 105.2 	-tags='no_mysql no_sqlite3' \
+#11 105.2 	-ldflags=" \
+#11 105.2 		-X 'github.com/ozonmp/act-device-api/internal/config.version=' \
+#11 105.2 		-X 'github.com/ozonmp/act-device-api/internal/config.commitHash=' \
+#11 105.2 	" \
+#11 105.2 	-o ./bin/grpc-server ./cmd/grpc-server/main.go
+#11 DONE 162.6s
+
+#12 [act-device-api server 2/8] RUN apk --no-cache add ca-certificates
+#12 CACHED
+
+#13 [act-device-api server 3/8] RUN apk --no-cache add curl
+#13 CACHED
+
+#14 [act-device-api server 4/8] WORKDIR /root/
+#14 CACHED
+
+#15 [act-device-api server 5/8] COPY --from=builder /home//bin/grpc-server .
+#15 DONE 0.2s
+
+#16 [act-device-api server 6/8] COPY --from=builder /home//config.yml .
+#16 DONE 0.0s
+
+#17 [act-device-api server 7/8] COPY --from=builder /home//migrations/ ./migrations
+#17 DONE 0.0s
+
+#18 [act-device-api server 8/8] RUN chown root:root grpc-server
+#18 DONE 0.9s
+
+#19 [act-device-api] exporting to image
+#19 exporting layers
+#19 exporting layers 0.3s done
+#19 writing image sha256:70818d9bee342614f08ca845ce0752cc674def485f0ff45a048388ede72cf153 done
+#19 naming to docker.io/library/ozon_route256-act-device-api done
+#19 DONE 0.4s
