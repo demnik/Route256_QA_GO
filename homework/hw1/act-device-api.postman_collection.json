@@ -1,0 +1,368 @@
+{
+	"info": {
+		"_postman_id": "85f1c32e-f03b-494c-9423-fab445639b61",
+		"name": "act-device-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29769511"
+	},
+	"item": [
+		{
+			"name": "Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.collectionVariables.set(\"deviceId\", jsonData.deviceId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function getRandomInt() {",
+							"  min = Math.ceil(0);",
+							"  max = Math.floor(Number.MAX_SAFE_INTEGER);",
+							"  return Math.floor(Math.random() * (max - min) + min);",
+							"}",
+							"",
+							"platforms = [",
+							"  \"Ios\",",
+							"  \"Android\",",
+							"  \"Symbian\",",
+							"  \"BlackBerry\",",
+							"  \"Windows Phone\",",
+							"  \"Windows Mobile\",",
+							"  \"Ubuntu Touch\"",
+							"]",
+							"",
+							"function getRandomPlatform() {",
+							"  return platforms[Math.floor(Math.random() * platforms.length)];",
+							"}",
+							"",
+							"var newUserId = getRandomInt();",
+							"pm.collectionVariables.set(\"userId\", String(newUserId));",
+							"",
+							"var newPlatform = getRandomPlatform();",
+							"pm.collectionVariables.set(\"platform\", newPlatform);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"platform\": \"{{platform}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/devices",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"devices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ReadAfterCreate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"DeviceId check after create\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.value.id).to.eql(pm.collectionVariables.get(\"deviceId\"));",
+							"});",
+							"",
+							"pm.test(\"UserId check after create\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.value.userId).to.eql(pm.collectionVariables.get(\"userId\"));",
+							"});",
+							"",
+							"pm.test(\"Platform check after create\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.value.platform).to.eql(pm.collectionVariables.get(\"platform\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/devices/{{deviceId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"devices",
+						"{{deviceId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Update check\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.eql(true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function getRandomInt() {",
+							"  min = Math.ceil(0);",
+							"  max = Math.floor(Number.MAX_SAFE_INTEGER);",
+							"  return Math.floor(Math.random() * (max - min) + min);",
+							"}",
+							"",
+							"platforms = [",
+							"  \"Ios\",",
+							"  \"Android\",",
+							"  \"Symbian\",",
+							"  \"BlackBerry\",",
+							"  \"Windows Phone\",",
+							"  \"Windows Mobile\",",
+							"  \"Ubuntu Touch\"",
+							"]",
+							"",
+							"function getRandomPlatform() {",
+							"  return platforms[Math.floor(Math.random() * platforms.length)];",
+							"}",
+							"",
+							"var newUserId = getRandomInt();",
+							"pm.collectionVariables.set(\"userId\", String(newUserId));",
+							"",
+							"var newPlatform = getRandomPlatform();",
+							"pm.collectionVariables.set(\"platform\", newPlatform);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"platform\": \"{{platform}}\",\n  \"userId\": \"{{userId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/devices/{{deviceId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"devices",
+						"{{deviceId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ReadAfterUpdate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"DeviceId check after update\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.value.id).to.eql(pm.collectionVariables.get(\"deviceId\"));",
+							"});",
+							"",
+							"pm.test(\"UserId check after update\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.value.userId).to.eql(pm.collectionVariables.get(\"userId\"));",
+							"});",
+							"",
+							"pm.test(\"Platform check after update\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.value.platform).to.eql(pm.collectionVariables.get(\"platform\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/devices/{{deviceId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"devices",
+						"{{deviceId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Delete check\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.found).to.eql(true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/devices/{{deviceId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"devices",
+						"{{deviceId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "route256",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "ozon",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "deviceId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "platform",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,56 @@
+dementev@dementev-virtual-machine:~/reps/act-device-api/homework/hw1$ sudo docker run --network host -v
+/home/dementev/reps/act-device-api/homework/hw1:/etc/newman -t postman/newman run
+/etc/newman/act-device-api.postman_collection.json --environment /etc/newman/act-device-api-env.json > newman-from-docker.log
+
+[sudo] password for dementev:
+newman
+
+act-device-api
+
+→ Create
+  POST http://localhost:8080/api/v1/devices [200 OK, 218B, 229ms]
+  ✓  Status code is 200
+
+→ ReadAfterCreate
+  GET http://localhost:8080/api/v1/devices/586 [200 OK, 322B, 21ms]
+  ✓  Status code is 200
+  ✓  DeviceId check after create
+  ✓  UserId check after create
+  ✓  Platform check after create
+
+→ Update
+  PUT http://localhost:8080/api/v1/devices/586 [200 OK, 216B, 18ms]
+  ✓  Status code is 200
+  ✓  Update check
+
+→ ReadAfterUpdate
+  GET http://localhost:8080/api/v1/devices/586 [200 OK, 317B, 25ms]
+  ✓  Status code is 200
+  ✓  DeviceId check after update
+  ✓  UserId check after update
+  ✓  Platform check after update
+
+→ Remove
+  DELETE http://localhost:8080/api/v1/devices/586 [200 OK, 214B, 17ms]
+  ✓  Status code is 200
+  ✓  Delete check
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                 5 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                10 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 7 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                13 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 862ms                                       │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 285B (approx)                              │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 62ms [min: 17ms, max: 229ms, s.d.: 83ms] │
+└─────────────────────────────────────────────────────────────────┘
