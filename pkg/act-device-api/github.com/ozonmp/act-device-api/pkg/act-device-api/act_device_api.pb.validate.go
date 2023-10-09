@@ -204,6 +204,18 @@ func (m *CreateDeviceV1Response) Validate() error {
 
 	// no validation rules for DeviceId
 
+	// no validation rules for UserId
+
+	if v, ok := interface{}(m.GetEnteredAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateDeviceV1ResponseValidationError{
+				field:  "EnteredAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	return nil
 }
 

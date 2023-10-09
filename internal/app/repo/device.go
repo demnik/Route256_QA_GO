@@ -2,9 +2,9 @@ package repo
 
 import (
 	"context"
-
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 
@@ -13,7 +13,7 @@ import (
 
 // Repo is DAO for Template
 type Repo interface {
-	CreateDevice(ctx context.Context, device *model.Device) (uint64, error)
+	CreateDevice(ctx context.Context, device *model.Device) (uint64, uint64, time.Time, error)
 	DescribeDevice(ctx context.Context, deviceID uint64) (*model.Device, error)
 	ListDevices(ctx context.Context, page uint64, perPage uint64) ([]*model.Device, error)
 	UpdateDevice(ctx context.Context, device *model.Device) (bool, error)
@@ -30,25 +30,27 @@ func NewRepo(db *sqlx.DB, batchSize uint) Repo {
 	return &repo{db: db, batchSize: batchSize}
 }
 
-func (r *repo) CreateDevice(ctx context.Context, device *model.Device) (uint64, error) {
+func (r *repo) CreateDevice(ctx context.Context, device *model.Device) (uint64, uint64, time.Time, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.device.CreateDevice")
 	defer span.Finish()
 
 	query := sq.Insert("devices").PlaceholderFormat(sq.Dollar).
 		Columns("user_id", "platform", "entered_at").
 		Values(device.UserID, device.Platform, device.EnteredAt).
-		Suffix("RETURNING id")
+		Suffix("RETURNING id, user_id, entered_at")
 
 	s, args, err := query.ToSql()
 	if err != nil {
-		return 0, err
+		return 0, 0, time.Time{}, nil
 	}
 
 	var id uint64
+	var userID uint64
+	var enteredAt time.Time
 
-	err = r.db.GetContext(ctx, &id, s, args...)
+	err = r.db.QueryRowxContext(ctx, s, args...).Scan(&id, &userID, &enteredAt)
 
-	return id, err
+	return id, userID, enteredAt, err
 }
 
 func (r *repo) DescribeDevice(ctx context.Context, deviceID uint64) (*model.Device, error) {

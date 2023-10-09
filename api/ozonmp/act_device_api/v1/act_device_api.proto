@@ -115,6 +115,8 @@ message CreateDeviceV1Request {
 
 message CreateDeviceV1Response {
   uint64 device_id = 1;
+  uint64 user_id = 2;
+  google.protobuf.Timestamp entered_at = 3;
 }
 
 message DescribeDeviceV1Request {

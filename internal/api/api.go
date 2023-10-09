@@ -71,7 +71,7 @@ func (o *deviceAPI) CreateDeviceV1(
 		EnteredAt: &now,
 	}
 
-	deviceId, err := o.repo.CreateDevice(ctx, device)
+	deviceId, userId, enteredAt, err := o.repo.CreateDevice(ctx, device)
 	if err != nil {
 		logger.ErrorKV(
 			ctx,
@@ -103,7 +103,9 @@ func (o *deviceAPI) CreateDeviceV1(
 	logger.DebugKV(ctx, "CreateDeviceV1 -- success")
 
 	return &pb.CreateDeviceV1Response{
-		DeviceId: deviceId,
+		DeviceId:  deviceId,
+		UserId:    userId,
+		EnteredAt: &tspb.Timestamp{Seconds: enteredAt.Unix(), Nanos: 0},
 	}, nil
 }
 
