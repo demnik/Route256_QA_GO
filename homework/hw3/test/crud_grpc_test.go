@@ -1,21 +1,33 @@
+//go:build grpctest
+// +build grpctest
+
 package test
 
 import (
 	"context"
-	"github.com/ozonmp/act-device-api/pkg/act-device-api/github.com/ozonmp/act-device-api/pkg/act-device-api"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"math/rand"
+	"crypto/rand"
+	"math"
+	"math/big"
 	"testing"
 	"time"
+
+	act_device_api "github.com/ozonmp/act-device-api/pkg/act-device-api/github.com/ozonmp/act-device-api/pkg/act-device-api"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func generateId() uint64 {
-	rand.Seed(time.Now().UnixNano())
-	return uint64(rand.Uint32())
+func generateID(t *testing.T) uint64 {
+	t.Helper()
+	nBig, err := rand.Int(rand.Reader, big.NewInt(math.MaxUint32))
+	if err != nil {
+		t.Fatal()
+	}
+	n := nBig.Uint64()
+	return n
 }
 
-func getRandomPlatform() string {
+func getRandomPlatform(t *testing.T) string {
+	t.Helper()
 	platforms := [9]string{
 		"Ios",
 		"Android",
@@ -28,19 +40,23 @@ func getRandomPlatform() string {
 		"FreeDOS",
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	return platforms[rand.Intn(9)]
+	nBig, err := rand.Int(rand.Reader, big.NewInt(9))
+	if err != nil {
+		t.Fatal()
+	}
+	n := nBig.Int64()
+	return platforms[n]
 }
 
 func TestCRUD(t *testing.T) {
 	var deviceID uint64
-	platform := getRandomPlatform()
-	userId := generateId()
+	platform := getRandomPlatform(t)
+	userID := generateID(t)
 
 	t.Run("Create device", func(t *testing.T) {
-		createRes, err := createDevice(t, platform, userId)
+		createRes, err := createDevice(t, platform, userID)
 		require.NoError(t, err)
-		assert.Equal(t, userId, createRes.UserId)
+		assert.Equal(t, userID, createRes.UserId)
 		assert.Equal(t, time.Now().Unix(), createRes.EnteredAt.Seconds)
 
 		deviceID = createRes.DeviceId
@@ -50,14 +66,14 @@ func TestCRUD(t *testing.T) {
 
 		assert.Equal(t, deviceID, describeRes.Value.Id)
 		assert.Equal(t, platform, describeRes.Value.Platform)
-		assert.Equal(t, userId, describeRes.Value.UserId)
+		assert.Equal(t, userID, describeRes.Value.UserId)
 	})
 
-	platform = getRandomPlatform()
-	userId = generateId()
+	platform = getRandomPlatform(t)
+	userID = generateID(t)
 
 	t.Run("Update device", func(t *testing.T) {
-		updateRes, err := updateDevice(t, deviceID, platform, userId)
+		updateRes, err := updateDevice(t, deviceID, platform, userID)
 		require.NoError(t, err)
 		assert.Equal(t, true, updateRes.Success)
 
@@ -66,7 +82,7 @@ func TestCRUD(t *testing.T) {
 
 		assert.Equal(t, deviceID, describeRes.Value.Id)
 		assert.Equal(t, platform, describeRes.Value.Platform)
-		assert.Equal(t, userId, describeRes.Value.UserId)
+		assert.Equal(t, userID, describeRes.Value.UserId)
 	})
 
 	t.Run("Remove device", func(t *testing.T) {
@@ -95,16 +111,17 @@ func getListDevice(t *testing.T, page uint64, perPage uint64) (*act_device_api.L
 	return listRes, err
 }
 
-func removeDevice(t *testing.T, deviceId uint64) (*act_device_api.RemoveDeviceV1Response, error) {
+func removeDevice(t *testing.T, deviceID uint64) (*act_device_api.RemoveDeviceV1Response, error) {
 	t.Helper()
 	deleteRes, err := client.RemoveDeviceV1(context.Background(), &act_device_api.RemoveDeviceV1Request{
-		DeviceId: deviceId,
+		DeviceId: deviceID,
 	})
 
 	return deleteRes, err
 }
 
 func updateDevice(t *testing.T, deviceID uint64, platform string, userID uint64) (*act_device_api.UpdateDeviceV1Response, error) {
+	t.Helper()
 	updateRes, err := client.UpdateDeviceV1(context.Background(), &act_device_api.UpdateDeviceV1Request{
 		DeviceId: deviceID,
 		Platform: platform,
@@ -129,11 +146,11 @@ func getDevice(t *testing.T, deviceID uint64) (*act_device_api.DescribeDeviceV1R
 	return describeRes, err
 }
 
-func createDevice(t *testing.T, platform string, userId uint64) (*act_device_api.CreateDeviceV1Response, error) {
+func createDevice(t *testing.T, platform string, userID uint64) (*act_device_api.CreateDeviceV1Response, error) {
 	t.Helper()
 	createRes, err := client.CreateDeviceV1(context.Background(), &act_device_api.CreateDeviceV1Request{
 		Platform: platform,
-		UserId:   userId,
+		UserId:   userID,
 	})
 
 	return createRes, err

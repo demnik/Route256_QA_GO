@@ -2,11 +2,13 @@ package server
 
 import (
 	"context"
+
 	"github.com/ozonmp/act-device-api/internal/pkg/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
+// RequestLogInterceptor returns UnaryServerInterceptor
 func RequestLogInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
@@ -27,6 +29,7 @@ func RequestLogInterceptor() grpc.UnaryServerInterceptor {
 	}
 }
 
+// ResponseLogInterceptor returns UnaryServerInterceptor
 func ResponseLogInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		response, err := handler(ctx, req)

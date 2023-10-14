@@ -1,0 +1,150 @@
+image: gitlab.ozon.dev/qa/classroom-8/students/dependency_proxy/containers/golang:1.19-alpine
+
+variables:
+  ADD_DATA: 'data from vars.yml'
+  DOCKER_AUTH_CONFIG: '{"auths":{"gitlab.ozon.dev":{"username":"$CI_DEPENDENCY_PROXY_USER","password":"$CI_DEPENDENCY_PROXY_PASSWORD"}}}'
+
+stages:
+  - build
+  - publish
+  - deploy
+  - e2e
+  - post-deploy
+  - close
+  - start prod
+
+build:
+  stage: build
+  script:
+    - apk add --update make curl git protoc protobuf protobuf-dev build-base
+    - make deps-go
+    - make build
+  artifacts:
+    paths:
+      - bin/
+    expire_in: 1 day
+
+unit:
+  stage: build
+  before_script:
+    - apk add --update make curl git protoc protobuf protobuf-dev build-base
+    - go install gotest.tools/gotestsum@latest
+  script:
+    - go test -v -json -coverprofile cover.out ./... > out.json
+    - cat out.json | gotestsum --format testname --junitfile junit-report.xml
+    - go tool cover -func cover.out
+  coverage: '/^total:\s+\(statements\)\s+\d+.\d+%$/'
+  artifacts:
+    when: always
+    paths:
+      - out.json
+      - junit-report.xml
+    reports:
+      junit: junit-report.xml
+    expire_in: 1 day
+
+linter:
+  stage: build
+  image: gitlab.ozon.dev/qa/classroom-8/students/dependency_proxy/containers/golangci/golangci-lint
+  script:
+    - golangci-lint run --config .golangci.yml --new-from-rev master ./...
+
+pre-commit:
+  stage: build
+  image: gitlab.ozon.dev/qa/classroom-8/students/dependency_proxy/containers/kiwicom/pre-commit
+  script:
+    - pre-commit run -a
+
+create image:
+  stage: publish
+  script:
+    - echo "Publish create image successful"
+  needs:
+    - build
+    - unit
+
+development:
+  stage: deploy
+  script:
+    - echo "Deploy development successful"
+  needs:
+    - create image
+
+staging:
+  stage: deploy
+  script:
+    - echo "Deploy staging successful"
+  needs:
+    - create image
+
+
+.e2e test:
+  stage: e2e
+  services:
+    - name: gitlab.ozon.dev/qa/classroom-8/students/dependency_proxy/containers/postgres:13
+      alias: postgres
+  variables:
+    # appEnv
+    CONFIG_FILE: container-config.yml
+    # enable network
+    FF_NETWORK_PER_BUILD: 1
+    # postgres variables
+    POSTGRES_USER: docker
+    POSTGRES_PASSWORD: docker
+    POSTGRES_DB: act_device_api
+  before_script:
+    - apk add --update make curl git protoc protobuf protobuf-dev build-base
+    - go install gotest.tools/gotestsum@latest
+    - make deps-go
+    - ./bin/grpc-server &
+    - sleep 5
+  after_script:
+    - cat e2e_out.json | gotestsum --format testname --junitfile junit-report.xml
+  artifacts:
+    paths:
+      - e2e_out.json
+      - junit-report.xml
+    reports:
+      junit: junit-report.xml
+    expire_in: 1 day
+  needs:
+    - build
+    - unit
+
+http test:
+  extends: .e2e test
+  script:
+    - go test -tags httptest -json ./homework/... > e2e_out.json
+
+grpc test:
+  extends: .e2e test
+  script:
+    - go test -tags grpctest -json ./homework/... > e2e_out.json
+
+staging  latest:
+  stage: post-deploy
+  script:
+    - echo "Post-deploy staging successful"
+  needs:
+    - http test
+    - grpc test
+
+ready to prod:
+  stage: close
+  when:
+    manual
+  script:
+    - echo "Ready to prod"
+  needs:
+    - staging  latest
+
+close release:
+  stage: close
+  trigger:
+    include:
+      - local: prod-pipeline.yml
+    strategy: depend
+  needs:
+    - ready to prod
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /release\/\d+\.\d+\.\d+$/'

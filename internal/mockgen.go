@@ -1,3 +1,4 @@
+// Package internal is...
 package internal
 
 //go:generate mockgen -destination=./mocks/repo_mock.go -package=mocks github.com/ozonmp/act-device-api/internal/app/repo EventRepo

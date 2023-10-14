@@ -1,11 +1,14 @@
 package test
 
 import (
-	"github.com/ozonmp/act-device-api/pkg/act-device-api/github.com/ozonmp/act-device-api/pkg/act-device-api"
-	"google.golang.org/grpc"
 	"log"
 	"os"
 	"testing"
+
+	"google.golang.org/grpc/credentials/insecure"
+
+	act_device_api "github.com/ozonmp/act-device-api/pkg/act-device-api/github.com/ozonmp/act-device-api/pkg/act-device-api"
+	"google.golang.org/grpc"
 )
 
 var client act_device_api.ActDeviceApiServiceClient
@@ -18,8 +21,8 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
-func newClient(grpcUrl string) act_device_api.ActDeviceApiServiceClient {
-	conn, err := grpc.Dial(grpcUrl, grpc.WithInsecure())
+func newClient(grpcURL string) act_device_api.ActDeviceApiServiceClient {
+	conn, err := grpc.Dial(grpcURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		log.Fatalf("Connection failed: %v", err)

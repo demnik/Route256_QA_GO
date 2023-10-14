@@ -1,8 +1,10 @@
+// Package retranslator describes working with retranslator
 package retranslator
 
 import (
-	"github.com/ozonmp/act-device-api/internal/app/repo"
 	"time"
+
+	"github.com/ozonmp/act-device-api/internal/app/repo"
 
 	"github.com/gammazero/workerpool"
 	"github.com/ozonmp/act-device-api/internal/app/consumer"
@@ -11,11 +13,13 @@ import (
 	"github.com/ozonmp/act-device-api/internal/model"
 )
 
+// Retranslator interface
 type Retranslator interface {
 	Start()
 	Close()
 }
 
+// Config retranslator
 type Config struct {
 	ChannelSize uint64
 
@@ -37,6 +41,7 @@ type retranslator struct {
 	workerPool *workerpool.WorkerPool
 }
 
+// NewRetranslator returns new retranslator
 func NewRetranslator(cfg Config) Retranslator {
 	events := make(chan model.DeviceEvent, cfg.ChannelSize)
 	workerPool := workerpool.New(cfg.WorkerCount)

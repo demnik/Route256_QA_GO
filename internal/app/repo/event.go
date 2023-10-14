@@ -3,13 +3,14 @@ package repo
 import (
 	"context"
 	"encoding/json"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
 	"github.com/ozonmp/act-device-api/internal/model"
 )
 
-//go:generate mockgen -source=./event.go -destination=./../../mocks/repo_mock.go -package=mocks
+// EventRepo - contains method call signatures
 type EventRepo interface {
 	Lock(ctx context.Context, n uint64) ([]model.DeviceEvent, error)
 	Unlock(ctx context.Context, eventIDs []uint64) error
@@ -83,7 +84,7 @@ func (r repo) Add(ctx context.Context, event *model.DeviceEvent) error {
 
 	query := sq.Insert("devices_events").PlaceholderFormat(sq.Dollar).
 		Columns("device_id", "type", "status", "payload").
-		Values(event.DeviceId, event.Type, event.Status, payload).
+		Values(event.DeviceID, event.Type, event.Status, payload).
 		Suffix("RETURNING id")
 
 	s, args, err := query.ToSql()

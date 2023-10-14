@@ -1,0 +1,72 @@
+stages:
+  - publish
+  - deploy
+  - canary
+  - close
+
+release image:
+  stage: publish
+  script:
+    - echo "Publish release image successful"
+
+production:
+  stage: deploy
+  script:
+    - echo "Deploy production successful"
+  needs:
+    - release image
+
+.canary:
+  stage: canary
+  when:
+    manual
+  variables:
+    CANARY: none
+  script:
+    - echo "Canary $CANARY%"
+  needs:
+    - production
+
+canary 0%:
+  extends: .canary
+  variables:
+    CANARY: 0
+
+canary 1%:
+  extends: .canary
+  variables:
+    CANARY: 1
+
+canary 5%:
+  extends: .canary
+  variables:
+    CANARY: 5
+
+canary 10%:
+  extends: .canary
+  variables:
+    CANARY: 10
+
+canary 20%:
+  extends: .canary
+  variables:
+    CANARY: 20
+
+canary 50%:
+  extends: .canary
+  variables:
+    CANARY: 50
+
+canary 100%:
+  extends: .canary
+  variables:
+    CANARY: 100
+
+close release:
+  stage: close
+  when:
+    manual
+  script:
+    - echo "close release"
+  needs:
+    - canary 100%

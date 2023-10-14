@@ -2,9 +2,10 @@ package logger
 
 import (
 	"context"
-	"google.golang.org/grpc/metadata"
 	"log"
 	"strings"
+
+	"google.golang.org/grpc/metadata"
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
@@ -36,49 +37,61 @@ func fromContext(ctx context.Context) *zap.SugaredLogger {
 	return result
 }
 
+// ErrorKV logs a message with some additional context. The variadic key-value
+// pairs are treated as they are in With.
 func ErrorKV(ctx context.Context, message string, kvs ...interface{}) {
 	fromContext(ctx).Errorw(message, kvs...)
 }
 
+// WarnKV logs a message with some additional context. The variadic key-value
+// pairs are treated as they are in With.
 func WarnKV(ctx context.Context, message string, kvs ...interface{}) {
 	fromContext(ctx).Warnw(message, kvs...)
 }
 
+// InfoKV logs a message with some additional context. The variadic key-value
+// pairs are treated as they are in With.
 func InfoKV(ctx context.Context, message string, kvs ...interface{}) {
 	fromContext(ctx).Infow(message, kvs...)
 }
 
+// DebugKV logs a message with some additional context. The variadic key-value
+// pairs are treated as they are in With.
 func DebugKV(ctx context.Context, message string, kvs ...interface{}) {
 	fromContext(ctx).Debugw(message, kvs...)
 }
 
+// FatalKV logs a message with some additional context, then calls os.Exit. The
+// variadic key-value pairs are treated as they are in With.
 func FatalKV(ctx context.Context, message string, kvs ...interface{}) {
 	fromContext(ctx).Fatalw(message, kvs...)
 }
 
-func AttachLogger(ctx context.Context, logger *zap.SugaredLogger) context.Context {
+func attachLogger(ctx context.Context, logger *zap.SugaredLogger) context.Context {
 	return context.WithValue(ctx, attachedLoggerKey, logger)
 }
 
-func CloneWithLevel(ctx context.Context, newLevel zapcore.Level) *zap.SugaredLogger {
+func cloneWithLevel(ctx context.Context, newLevel zapcore.Level) *zap.SugaredLogger {
 	return fromContext(ctx).
 		Desugar().
 		WithOptions(WithLevel(newLevel)).
 		Sugar()
 }
 
+// SetLogger set globalLogger
 func SetLogger(newLogger *zap.SugaredLogger) {
 	globalLogger = newLogger
 }
 
+// LogLevelFromContext returned context from level
 func LogLevelFromContext(ctx context.Context) context.Context {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		levels := md.Get("log-level")
 		if len(levels) > 0 {
 			if parsedLevel, ok := parseLevel(levels[0]); ok {
-				newLogger := CloneWithLevel(ctx, parsedLevel)
-				ctx = AttachLogger(ctx, newLogger)
+				newLogger := cloneWithLevel(ctx, parsedLevel)
+				ctx = attachLogger(ctx, newLogger)
 			}
 		}
 	}

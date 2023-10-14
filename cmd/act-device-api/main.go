@@ -1,3 +1,4 @@
+// This is where the retranslator starts
 package main
 
 import (
