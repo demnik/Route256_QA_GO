@@ -1,8 +1,15 @@
+// Server starts here
 package main
 
 import (
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -19,12 +26,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.uber.org/zap"
-	"net/http"
-	_ "net/http/pprof"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 var (
@@ -34,7 +35,12 @@ var (
 func main() {
 
 	go func() {
-		log.Print(http.ListenAndServe("localhost:50053", nil))
+		serv := &http.Server{
+			Addr:              "localhost:50053",
+			ReadHeaderTimeout: 3 * time.Second,
+		}
+
+		log.Print(serv.ListenAndServe())
 	}()
 
 	log.Info().Msg("Registered 50053")
@@ -103,7 +109,7 @@ func main() {
 }
 
 func setupRetranslator(db *sqlx.DB, kafkaCfg config.Kafka) {
-	if false == kafkaCfg.Enabled {
+	if !kafkaCfg.Enabled {
 		return
 	}
 	sigs := make(chan os.Signal, 1)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync/atomic"
+	"time"
 
 	"github.com/ozonmp/act-device-api/internal/config"
 	"github.com/rs/zerolog/log"
@@ -20,8 +21,9 @@ func createStatusServer(cfg *config.Config, isReady *atomic.Value) *http.Server 
 	mux.HandleFunc(cfg.Status.VersionPath, versionHandler(cfg))
 
 	statusServer := &http.Server{
-		Addr:    statusAddr,
-		Handler: mux,
+		Addr:              statusAddr,
+		Handler:           mux,
+		ReadHeaderTimeout: 2 * time.Second,
 	}
 
 	return statusServer

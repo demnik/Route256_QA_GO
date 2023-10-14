@@ -1,3 +1,4 @@
+// Package server describes work server
 package server
 
 import (
@@ -6,7 +7,9 @@ import (
 	"crypto/subtle"
 	"errors"
 	"net/http"
-	_ "net/http/pprof"
+	"time"
+
+	"google.golang.org/grpc/credentials/insecure"
 
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -52,14 +55,14 @@ func tracingWrapper(h http.Handler) http.Handler {
 func authHandler(next http.Handler, userCfgHash [32]byte, passCfgHash [32]byte) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		user, pass, ok := r.BasicAuth()
-		log.Info().Msgf("r %s", ok)
+		log.Info().Msgf("r %v", ok)
 
 		if ok {
-			log.Info().Msgf("User and pass from config %s", userCfgHash, passCfgHash)
+			log.Info().Msgf("User and pass from config %s %s", userCfgHash, passCfgHash)
 
 			userHash := sha256.Sum256([]byte(user))
 			passHash := sha256.Sum256([]byte(pass))
-			log.Info().Msgf("User and pass from header %s", userHash, passHash)
+			log.Info().Msgf("User and pass from header %s %s", userHash, passHash)
 
 			if subtle.ConstantTimeCompare(userHash[:], userCfgHash[:]) == 1 && subtle.ConstantTimeCompare(passHash[:], passCfgHash[:]) == 1 {
 				next.ServeHTTP(rw, r)
@@ -85,7 +88,7 @@ func createGatewayServer(grpcAddr, gatewayAddr string) *http.Server {
 				grpc_opentracing.WithTracer(opentracing.GlobalTracer()),
 			),
 		),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to dial server")
@@ -101,8 +104,9 @@ func createGatewayServer(grpcAddr, gatewayAddr string) *http.Server {
 	}
 
 	gatewayServer := &http.Server{
-		Addr:    gatewayAddr,
-		Handler: authHandler(tracingWrapper(mux), userCfgHash, passCfgHash),
+		Addr:              gatewayAddr,
+		Handler:           authHandler(tracingWrapper(mux), userCfgHash, passCfgHash),
+		ReadHeaderTimeout: 2 * time.Second,
 	}
 
 	return gatewayServer

@@ -1,3 +1,4 @@
+// Package tracer describes working with tracer
 package tracer
 
 import (

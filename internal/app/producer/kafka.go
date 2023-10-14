@@ -1,25 +1,25 @@
+// Package producer describes working with producer
 package producer
 
 import (
 	"context"
-	"github.com/ozonmp/act-device-api/internal/app/repo"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/gammazero/workerpool"
+	"github.com/ozonmp/act-device-api/internal/app/repo"
 	"github.com/ozonmp/act-device-api/internal/app/sender"
 	"github.com/ozonmp/act-device-api/internal/model"
 )
 
+// Producer interface
 type Producer interface {
 	Start()
 	Close()
 }
 
 type producer struct {
-	n       uint64
-	timeout time.Duration
+	n uint64
 
 	sender sender.EventSender
 	repo   repo.EventRepo
@@ -31,6 +31,7 @@ type producer struct {
 	done chan bool
 }
 
+// NewKafkaProducer returned new producer
 func NewKafkaProducer(
 	n uint64,
 	sender sender.EventSender,

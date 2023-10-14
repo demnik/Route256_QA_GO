@@ -1,3 +1,4 @@
+// Package database describes working with db
 package database
 
 import (
@@ -15,12 +16,11 @@ func NewPostgres(dsn, driver string) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	// need to uncomment for homework-4
-	// if err = db.Ping(); err != nil {
-	// 	log.Error().Err(err).Msgf("failed ping the database")
+	if err = db.Ping(); err != nil {
+		log.Error().Err(err).Msgf("failed ping the database")
 
-	// 	return nil, err
-	// }
+		return nil, err
+	}
 
 	return db, nil
 }

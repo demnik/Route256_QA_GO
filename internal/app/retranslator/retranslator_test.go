@@ -2,9 +2,10 @@ package retranslator
 
 import (
 	"errors"
-	"github.com/ozonmp/act-device-api/internal/app/repo"
 	"testing"
 	"time"
+
+	"github.com/ozonmp/act-device-api/internal/app/repo"
 
 	"github.com/golang/mock/gomock"
 	"github.com/ozonmp/act-device-api/internal/app/sender"

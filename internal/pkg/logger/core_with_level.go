@@ -1,3 +1,4 @@
+// Package logger describes working with logger
 package logger
 
 import (
@@ -28,6 +29,7 @@ func (c *coreWithLevel) With(fields []zapcore.Field) zapcore.Core {
 	}
 }
 
+// WithLevel returns wraps or replaces the Logger's underlying zapcore.Core.
 func WithLevel(lvl zapcore.Level) zap.Option {
 	return zap.WrapCore(func(core zapcore.Core) zapcore.Core {
 		return &coreWithLevel{core, lvl}

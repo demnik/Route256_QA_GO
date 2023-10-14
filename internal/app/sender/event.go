@@ -1,3 +1,4 @@
+// Package sender describes working with sender
 package sender
 
 import (
@@ -9,16 +10,18 @@ import (
 	tspb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
-//go:generate mockgen -source=./event.go -destination=./../../mocks/sender_mock.go -package=mocks
+// EventSender interface
 type EventSender interface {
 	Send(event *model.DeviceEvent) error
 }
 
+// Sender struct
 type Sender struct {
 	producer sarama.SyncProducer
 	topic    string
 }
 
+// Send message to kafka
 func (s *Sender) Send(event *model.DeviceEvent) error {
 	var payload *pb.Device
 
@@ -33,7 +36,7 @@ func (s *Sender) Send(event *model.DeviceEvent) error {
 
 	pbDeviceEvent := &pb.DeviceEvent{
 		Id:       event.ID,
-		DeviceId: event.DeviceId,
+		DeviceId: event.DeviceID,
 		Type:     uint64(event.Type),
 		Status:   uint64(event.Status),
 		Payload:  payload,
@@ -54,6 +57,7 @@ func (s *Sender) Send(event *model.DeviceEvent) error {
 	return err
 }
 
+// NewEventSender returns new event sender
 func NewEventSender(brokers []string, topic string) (*Sender, error) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner

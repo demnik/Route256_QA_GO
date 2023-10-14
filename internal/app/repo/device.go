@@ -1,10 +1,12 @@
+// Package repo contain basic crud methods
 package repo
 
 import (
 	"context"
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 
@@ -30,6 +32,7 @@ func NewRepo(db *sqlx.DB, batchSize uint) Repo {
 	return &repo{db: db, batchSize: batchSize}
 }
 
+// CreateDevice create device into db
 func (r *repo) CreateDevice(ctx context.Context, device *model.Device) (uint64, uint64, time.Time, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.device.CreateDevice")
 	defer span.Finish()
@@ -53,6 +56,7 @@ func (r *repo) CreateDevice(ctx context.Context, device *model.Device) (uint64, 
 	return id, userID, enteredAt, err
 }
 
+// DescribeDevice from db
 func (r *repo) DescribeDevice(ctx context.Context, deviceID uint64) (*model.Device, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.device.DescribeDevice")
 	defer span.Finish()
@@ -73,6 +77,7 @@ func (r *repo) DescribeDevice(ctx context.Context, deviceID uint64) (*model.Devi
 	return &device, err
 }
 
+// ListDevices get list devices from db
 func (r *repo) ListDevices(ctx context.Context, page uint64, perPage uint64) ([]*model.Device, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.device.ListDevices")
 	defer span.Finish()
@@ -96,6 +101,7 @@ func (r *repo) ListDevices(ctx context.Context, page uint64, perPage uint64) ([]
 	return devices, err
 }
 
+// UpdateDevice into db
 func (r *repo) UpdateDevice(ctx context.Context, device *model.Device) (bool, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.device.UpdateDevice")
 	defer span.Finish()
@@ -123,6 +129,7 @@ func (r *repo) UpdateDevice(ctx context.Context, device *model.Device) (bool, er
 	return rows > 0, nil
 }
 
+// RemoveDevice from db
 func (r *repo) RemoveDevice(ctx context.Context, deviceID uint64) (bool, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.device.RemoveDevice")
 	defer span.Finish()

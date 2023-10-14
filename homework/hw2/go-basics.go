@@ -1,3 +1,4 @@
+// Basic tasks for golang
 package main
 
 import (

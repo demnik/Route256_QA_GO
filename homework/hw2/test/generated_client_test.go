@@ -1,3 +1,6 @@
+//go:build httptest
+// +build httptest
+
 package main
 
 import (
@@ -13,7 +16,7 @@ var testUrl = "localhost:8080"
 var testAuth = "Basic b3pvbjpyb3V0ZTI1Ng=="
 
 func TestGetGeneratedClient(t *testing.T) {
-	deviceId := "578"
+	deviceId := "500"
 
 	client := http_client.NewHTTPClientWithConfig(strfmt.Default, http_client.DefaultTransportConfig().WithHost(testUrl))
 	req := act_device_api_service.NewActDeviceAPIServiceDescribeDeviceV1Params()

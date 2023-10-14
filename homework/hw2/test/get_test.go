@@ -1,3 +1,6 @@
+//go:build httptest
+// +build httptest
+
 package main
 
 import (
@@ -9,14 +12,14 @@ import (
 )
 
 var (
-	baseUrl = "http://localhost:8080"
+	baseURL = "http://localhost:8080"
 )
 
 func Test_Get(t *testing.T) {
 	t.Run("get: device", func(t *testing.T) {
 		client := http.DefaultClient
 
-		req, err := http.NewRequest("GET", baseUrl+"/api/v1/devices/578", nil)
+		req, err := http.NewRequest("GET", baseURL+"/api/v1/devices/489", nil)
 
 		if err != nil {
 			t.Error("NewRequest failed", err)
@@ -35,10 +38,10 @@ func Test_Get(t *testing.T) {
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			b, err := io.ReadAll(resp.Body)
+			b, er := io.ReadAll(resp.Body)
 
-			if err != nil {
-				t.Error("ReadAll failed", err)
+			if er != nil {
+				t.Error("ReadAll failed", er)
 			}
 
 			t.Errorf("Invalid status code! got: %d, want %d, response body: %s",
@@ -48,9 +51,9 @@ func Test_Get(t *testing.T) {
 		}
 
 		type Device struct {
-			Id        string    `json:"id"`
+			ID        string    `json:"id"`
 			Platform  string    `json:"platform"`
-			UserId    string    `json:"userId"`
+			UserID    string    `json:"userId"`
 			EnteredAt time.Time `json:"enteredAt"`
 		}
 

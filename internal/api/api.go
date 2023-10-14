@@ -1,3 +1,4 @@
+// Package api describes the work crud
 package api
 
 import (
@@ -71,7 +72,7 @@ func (o *deviceAPI) CreateDeviceV1(
 		EnteredAt: &now,
 	}
 
-	deviceId, userId, enteredAt, err := o.repo.CreateDevice(ctx, device)
+	deviceID, userID, enteredAt, err := o.repo.CreateDevice(ctx, device)
 	if err != nil {
 		logger.ErrorKV(
 			ctx,
@@ -83,7 +84,7 @@ func (o *deviceAPI) CreateDeviceV1(
 	}
 
 	err = o.eventRepo.Add(ctx, &model.DeviceEvent{
-		DeviceId: deviceId,
+		DeviceID: deviceID,
 		Type:     model.Created,
 		Status:   model.Deferred,
 		Device:   device,
@@ -103,8 +104,8 @@ func (o *deviceAPI) CreateDeviceV1(
 	logger.DebugKV(ctx, "CreateDeviceV1 -- success")
 
 	return &pb.CreateDeviceV1Response{
-		DeviceId:  deviceId,
-		UserId:    userId,
+		DeviceId:  deviceID,
+		UserId:    userID,
 		EnteredAt: &tspb.Timestamp{Seconds: enteredAt.Unix(), Nanos: 0},
 	}, nil
 }
@@ -230,11 +231,10 @@ func (o *deviceAPI) UpdateDeviceV1(
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-
-	deviceId := req.GetDeviceId()
+	deviceID := req.GetDeviceId()
 
 	device := &model.Device{
-		ID:       deviceId,
+		ID:       deviceID,
 		UserID:   req.GetUserId(),
 		Platform: req.GetPlatform(),
 	}
@@ -254,7 +254,7 @@ func (o *deviceAPI) UpdateDeviceV1(
 		cudActionsTotal.WithLabelValues("update").Inc()
 
 		err = o.eventRepo.Add(ctx, &model.DeviceEvent{
-			DeviceId: deviceId,
+			DeviceID: deviceID,
 			Type:     model.Updated,
 			Status:   model.Deferred,
 			Device:   device,
@@ -296,9 +296,9 @@ func (o *deviceAPI) RemoveDeviceV1(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	deviceId := req.GetDeviceId()
+	deviceID := req.GetDeviceId()
 
-	found, err := o.repo.RemoveDevice(ctx, deviceId)
+	found, err := o.repo.RemoveDevice(ctx, deviceID)
 	if err != nil {
 		logger.ErrorKV(
 			ctx,
@@ -315,7 +315,7 @@ func (o *deviceAPI) RemoveDeviceV1(
 		cudActionsTotal.WithLabelValues("remove").Inc()
 
 		err = o.eventRepo.Add(ctx, &model.DeviceEvent{
-			DeviceId: deviceId,
+			DeviceID: deviceID,
 			Type:     model.Removed,
 			Status:   model.Deferred,
 		})

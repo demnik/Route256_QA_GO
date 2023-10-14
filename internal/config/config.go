@@ -1,3 +1,4 @@
+// Package config - contains structures for describing the configuration and a method for working with the configuration
 package config
 
 import (
