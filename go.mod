@@ -3,6 +3,7 @@ module github.com/ozonmp/act-device-api
 go 1.20
 
 require (
+	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/gammazero/workerpool v1.1.2
 	github.com/go-openapi/errors v0.20.4
 	github.com/go-openapi/runtime v0.26.0

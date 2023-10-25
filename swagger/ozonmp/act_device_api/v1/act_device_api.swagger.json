@@ -48,6 +48,20 @@
             "required": false,
             "type": "string",
             "format": "uint64"
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
           }
         ],
         "tags": [
@@ -219,6 +233,44 @@
           }
         ]
       }
+    },
+    "/qa/v1/devices": {
+      "post": {
+        "summary": "CreateDevicesV1 - Create a devices",
+        "operationId": "ActDeviceApiService_CreateDevicesV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateDevicesV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateDevicesV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "ActDeviceApiService"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
     }
   },
   "definitions": {
@@ -278,6 +330,27 @@
         "enteredAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "v1CreateDevicesV1Request": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1CreateDevicesV1Response": {
+      "type": "object",
+      "properties": {
+        "deviceIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uint64"
+          }
         }
       }
     },

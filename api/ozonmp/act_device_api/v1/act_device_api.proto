@@ -42,6 +42,21 @@ service ActDeviceApiService {
       }
     };
   }
+  // CreateDevicesV1 - Create a devices
+  rpc CreateDevicesV1(CreateDevicesV1Request) returns (CreateDevicesV1Response) {
+    option (google.api.http) = {
+      post: "/qa/v1/devices"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authorization";
+          value: {};
+        }
+      }
+    };
+  }
   // DescribeDeviceV1 - Describe a device
   rpc DescribeDeviceV1(DescribeDeviceV1Request) returns (DescribeDeviceV1Response) {
     option (google.api.http) = {
@@ -119,6 +134,14 @@ message CreateDeviceV1Response {
   google.protobuf.Timestamp entered_at = 3;
 }
 
+message CreateDevicesV1Request {
+  uint32 amount = 1 [(validate.rules).uint32.gt = 0];
+}
+
+message CreateDevicesV1Response {
+  repeated uint64 device_ids = 1;
+}
+
 message DescribeDeviceV1Request {
   uint64 device_id = 1 [(validate.rules).uint64.gt = 0];
 }
@@ -130,6 +153,8 @@ message DescribeDeviceV1Response {
 message ListDevicesV1Request {
   uint64 page = 1;
   uint64 per_page = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
 }
 
 message ListDevicesV1Response {

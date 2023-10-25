@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type ActDeviceApiServiceClient interface {
 	// CreateDeviceV1 - Create a device
 	CreateDeviceV1(ctx context.Context, in *CreateDeviceV1Request, opts ...grpc.CallOption) (*CreateDeviceV1Response, error)
+	// CreateDevicesV1 - Create a devices
+	CreateDevicesV1(ctx context.Context, in *CreateDevicesV1Request, opts ...grpc.CallOption) (*CreateDevicesV1Response, error)
 	// DescribeDeviceV1 - Describe a device
 	DescribeDeviceV1(ctx context.Context, in *DescribeDeviceV1Request, opts ...grpc.CallOption) (*DescribeDeviceV1Response, error)
 	// ListDevicesV1 - List of devices
@@ -41,6 +43,15 @@ func NewActDeviceApiServiceClient(cc grpc.ClientConnInterface) ActDeviceApiServi
 func (c *actDeviceApiServiceClient) CreateDeviceV1(ctx context.Context, in *CreateDeviceV1Request, opts ...grpc.CallOption) (*CreateDeviceV1Response, error) {
 	out := new(CreateDeviceV1Response)
 	err := c.cc.Invoke(ctx, "/ozonmp.act_device_api.v1.ActDeviceApiService/CreateDeviceV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *actDeviceApiServiceClient) CreateDevicesV1(ctx context.Context, in *CreateDevicesV1Request, opts ...grpc.CallOption) (*CreateDevicesV1Response, error) {
+	out := new(CreateDevicesV1Response)
+	err := c.cc.Invoke(ctx, "/ozonmp.act_device_api.v1.ActDeviceApiService/CreateDevicesV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +100,8 @@ func (c *actDeviceApiServiceClient) RemoveDeviceV1(ctx context.Context, in *Remo
 type ActDeviceApiServiceServer interface {
 	// CreateDeviceV1 - Create a device
 	CreateDeviceV1(context.Context, *CreateDeviceV1Request) (*CreateDeviceV1Response, error)
+	// CreateDevicesV1 - Create a devices
+	CreateDevicesV1(context.Context, *CreateDevicesV1Request) (*CreateDevicesV1Response, error)
 	// DescribeDeviceV1 - Describe a device
 	DescribeDeviceV1(context.Context, *DescribeDeviceV1Request) (*DescribeDeviceV1Response, error)
 	// ListDevicesV1 - List of devices
@@ -106,6 +119,9 @@ type UnimplementedActDeviceApiServiceServer struct {
 
 func (UnimplementedActDeviceApiServiceServer) CreateDeviceV1(context.Context, *CreateDeviceV1Request) (*CreateDeviceV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateDeviceV1 not implemented")
+}
+func (UnimplementedActDeviceApiServiceServer) CreateDevicesV1(context.Context, *CreateDevicesV1Request) (*CreateDevicesV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDevicesV1 not implemented")
 }
 func (UnimplementedActDeviceApiServiceServer) DescribeDeviceV1(context.Context, *DescribeDeviceV1Request) (*DescribeDeviceV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeDeviceV1 not implemented")
@@ -146,6 +162,24 @@ func _ActDeviceApiService_CreateDeviceV1_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ActDeviceApiServiceServer).CreateDeviceV1(ctx, req.(*CreateDeviceV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ActDeviceApiService_CreateDevicesV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDevicesV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActDeviceApiServiceServer).CreateDevicesV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ozonmp.act_device_api.v1.ActDeviceApiService/CreateDevicesV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActDeviceApiServiceServer).CreateDevicesV1(ctx, req.(*CreateDevicesV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,6 +266,10 @@ var ActDeviceApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateDeviceV1",
 			Handler:    _ActDeviceApiService_CreateDeviceV1_Handler,
+		},
+		{
+			MethodName: "CreateDevicesV1",
+			Handler:    _ActDeviceApiService_CreateDevicesV1_Handler,
 		},
 		{
 			MethodName: "DescribeDeviceV1",
