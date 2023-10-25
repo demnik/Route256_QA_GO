@@ -1,0 +1,13 @@
+dementev@dementev-virtual-machine:~/reps/act-device-api$ go test -v ./homework/hw5/test
+=== RUN   TestCreateDevice
+--- PASS: TestCreateDevice (0.00s)
+=== RUN   TestDescribeDevice
+--- PASS: TestDescribeDevice (0.01s)
+=== RUN   TestUpdateDevice
+--- PASS: TestUpdateDevice (0.00s)
+=== RUN   TestRemoveDevice
+--- PASS: TestRemoveDevice (0.00s)
+=== RUN   TestListDevice
+--- PASS: TestListDevice (0.00s)
+PASS
+ok      github.com/ozonmp/act-device-api/homework/hw5/test      (cached)

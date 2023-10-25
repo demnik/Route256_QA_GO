@@ -4,6 +4,7 @@ package api
 import (
 	"context"
 	"database/sql"
+	"github.com/brianvoe/gofakeit"
 	"time"
 
 	"github.com/opentracing/opentracing-go"
@@ -107,6 +108,65 @@ func (o *deviceAPI) CreateDeviceV1(
 		DeviceId:  deviceID,
 		UserId:    userID,
 		EnteredAt: &tspb.Timestamp{Seconds: enteredAt.Unix(), Nanos: 0},
+	}, nil
+}
+
+func (o *deviceAPI) CreateDevicesV1(
+	ctx context.Context,
+	req *pb.CreateDevicesV1Request,
+) (*pb.CreateDevicesV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "api.CreateDevicesV1")
+	defer span.Finish()
+
+	ctx = logger.LogLevelFromContext(ctx)
+
+	if err := req.Validate(); err != nil {
+		logger.ErrorKV(
+			ctx,
+			"CreateDevicesV1 -- invalid argument",
+			"err", err,
+		)
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	amount := req.GetAmount()
+	platform := gofakeit.RandString([]string{"Ios",
+		"Android",
+		"Symbian",
+		"BlackBerry",
+		"Windows Phone",
+		"Windows Mobile",
+		"Ubuntu Touch",
+		"AMD",
+		"FreeDOS"},
+	)
+	userID := uint64(gofakeit.Uint32())
+	deviceIDs := make([]uint64, amount)
+
+	for i := uint32(0); i < amount; i++ {
+		resp, err := o.CreateDeviceV1(ctx, &pb.CreateDeviceV1Request{
+			Platform: platform,
+			UserId:   userID,
+		})
+
+		if err != nil {
+			logger.ErrorKV(
+				ctx,
+				"CreateDevicesV1 -- failed",
+				"err", err,
+			)
+
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+
+		deviceIDs[i] = resp.DeviceId
+	}
+
+	logger.DebugKV(ctx, "CreateDevicesV1 -- success")
+
+	return &pb.CreateDevicesV1Response{
+		DeviceIds: deviceIDs,
 	}, nil
 }
 

@@ -275,6 +275,147 @@ var _ interface {
 	ErrorName() string
 } = CreateDeviceV1ResponseValidationError{}
 
+// Validate checks the field values on CreateDevicesV1Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateDevicesV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if m.GetAmount() <= 0 {
+		return CreateDevicesV1RequestValidationError{
+			field:  "Amount",
+			reason: "value must be greater than 0",
+		}
+	}
+
+	return nil
+}
+
+// CreateDevicesV1RequestValidationError is the validation error returned by
+// CreateDevicesV1Request.Validate if the designated constraints aren't met.
+type CreateDevicesV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateDevicesV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateDevicesV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateDevicesV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateDevicesV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateDevicesV1RequestValidationError) ErrorName() string {
+	return "CreateDevicesV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateDevicesV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateDevicesV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateDevicesV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateDevicesV1RequestValidationError{}
+
+// Validate checks the field values on CreateDevicesV1Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateDevicesV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// CreateDevicesV1ResponseValidationError is the validation error returned by
+// CreateDevicesV1Response.Validate if the designated constraints aren't met.
+type CreateDevicesV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateDevicesV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateDevicesV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateDevicesV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateDevicesV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateDevicesV1ResponseValidationError) ErrorName() string {
+	return "CreateDevicesV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateDevicesV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateDevicesV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateDevicesV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateDevicesV1ResponseValidationError{}
+
 // Validate checks the field values on DescribeDeviceV1Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
@@ -437,6 +578,26 @@ func (m *ListDevicesV1Request) Validate() error {
 	// no validation rules for Page
 
 	// no validation rules for PerPage
+
+	if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListDevicesV1RequestValidationError{
+				field:  "StartTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetEndTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListDevicesV1RequestValidationError{
+				field:  "EndTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	return nil
 }
