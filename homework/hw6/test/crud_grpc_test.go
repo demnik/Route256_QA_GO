@@ -2,8 +2,10 @@ package test
 
 import (
 	"context"
+	"fmt"
 	"github.com/brianvoe/gofakeit"
 	"github.com/ozonmp/act-device-api/internal/pkg/testhelpers"
+	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/runner"
 	"testing"
@@ -20,41 +22,53 @@ func TestCRUD(t *testing.T) {
 	userID := uint64(gofakeit.Uint32())
 
 	runner.Run(t, "Create device", func(t provider.T) {
+		t.Epic("Devices")
+		t.Feature("gRPC")
+		t.Title("Создание устройства")
+		t.Description("Создается устройство с рандомной платформой из заранее заготовленного списка и рандомным UserID\nПосле создания получаем устройство")
+
 		device := createDevice(t, platform, userID)
-		require.NotNil(t, device)
-		assert.Equal(t, userID, device.UserId)
-		assert.Equal(t, time.Now().Unix(), device.EnteredAt.Seconds)
+		t.Require().NotNil(device, "Устройство должно быть создано")
+		t.Require().Equal(userID, device.UserId, fmt.Sprintf("UserID  должен быть равен %d", userID))
+		t.Require().Equal(time.Now().Unix(), device.EnteredAt.Seconds)
 
 		deviceID = device.DeviceId
 
 		describeRes := getDevice(t, deviceID)
 
-		assert.Equal(t, deviceID, describeRes.Value.Id)
-		assert.Equal(t, platform, describeRes.Value.Platform)
-		assert.Equal(t, userID, describeRes.Value.UserId)
+		t.Require().Equal(deviceID, describeRes.Value.Id, fmt.Sprintf("ID  должен быть равен %d", deviceID))
+		t.Require().Equal(platform, describeRes.Value.Platform, fmt.Sprintf("Платформа  должна быть %s", platform))
+		t.Require().Equal(userID, describeRes.Value.UserId, fmt.Sprintf("UserID  должен быть равен %d", userID))
 	})
 
-	//platform = testhelpers.GetRandomPlatform(t)
-	//userID = uint64(gofakeit.Uint32())
-	//
-	//t.Run("Update device", func(t *testing.T) {
-	//	updateRes, err := updateDevice(t, deviceID, platform, userID)
-	//	require.NoError(t, err)
-	//	assert.Equal(t, true, updateRes.Success)
-	//
-	//	describeRes, err := getDevice(t, deviceID)
-	//	require.NoError(t, err)
-	//
-	//	assert.Equal(t, deviceID, describeRes.Value.Id)
-	//	assert.Equal(t, platform, describeRes.Value.Platform)
-	//	assert.Equal(t, userID, describeRes.Value.UserId)
-	//})
-	//
-	//t.Run("Remove device", func(t *testing.T) {
-	//	deleteRes, err := removeDevice(t, deviceID)
-	//	require.NoError(t, err)
-	//	assert.Equal(t, true, deleteRes.Found)
-	//})
+	platform = testhelpers.GetRandomPlatform(t)
+	userID = uint64(gofakeit.Uint32())
+
+	runner.Run(t, "Update device", func(t provider.T) {
+		t.Epic("Devices")
+		t.Feature("gRPC")
+		t.Title("Обновление устройства")
+		t.Description("Обновляется устройство с рандомной платформой из заранее заготовленного списка и рандомным UserID\nПосле обновления получаем устройство")
+
+		updateRes := updateDevice(t, deviceID, platform, userID)
+		t.Require().True(updateRes.Success, "Статус обновления должен быть true")
+
+		describeRes := getDevice(t, deviceID)
+
+		t.Require().Equal(deviceID, describeRes.Value.Id, fmt.Sprintf("ID  должен быть равен %d", deviceID))
+		t.Require().Equal(platform, describeRes.Value.Platform, fmt.Sprintf("Платформа  должна быть %s", platform))
+		t.Require().Equal(userID, describeRes.Value.UserId, fmt.Sprintf("UserID  должен быть равен %d", userID))
+	})
+
+	runner.Run(t, "Remove device", func(t provider.T) {
+		t.Epic("Devices")
+		t.Feature("gRPC")
+		t.Title("Удаление устройства")
+		t.Description("Удаление устройство и проверяется статус")
+
+		deleteRes := removeDevice(t, deviceID)
+		t.Require().True(deleteRes.Found, "Статус удаления должен быть true")
+	})
 }
 
 func TestListDevice(t *testing.T) {
@@ -76,50 +90,70 @@ func getListDevice(t *testing.T, page uint64, perPage uint64) (*act_device_api.L
 	return listRes, err
 }
 
-func removeDevice(t *testing.T, deviceID uint64) (*act_device_api.RemoveDeviceV1Response, error) {
-	t.Helper()
-	deleteRes, err := client.RemoveDeviceV1(context.Background(), &act_device_api.RemoveDeviceV1Request{
-		DeviceId: deviceID,
-	})
-
-	return deleteRes, err
-}
-
-func updateDevice(t *testing.T, deviceID uint64, platform string, userID uint64) (*act_device_api.UpdateDeviceV1Response, error) {
-	t.Helper()
-	updateRes, err := client.UpdateDeviceV1(context.Background(), &act_device_api.UpdateDeviceV1Request{
-		DeviceId: deviceID,
-		Platform: platform,
-		UserId:   userID,
-	})
-	return updateRes, err
-}
-
-func getDevice(t provider.T, deviceID uint64) (device *act_device_api.DescribeDeviceV1Response) {
-	t.WithNewStep("Получение устройства", func(sCtx provider.StepCtx) {
-		res, err := client.DescribeDeviceV1(context.Background(), &act_device_api.DescribeDeviceV1Request{
+func removeDevice(t provider.T, deviceID uint64) (resp *act_device_api.RemoveDeviceV1Response) {
+	t.WithNewStep(fmt.Sprintf("Удаление устройства %d", deviceID), func(sCtx provider.StepCtx) {
+		res, err := client.RemoveDeviceV1(context.Background(), &act_device_api.RemoveDeviceV1Request{
 			DeviceId: deviceID,
 		})
 
-		t.Require().NoError(err, "Describe device failed")
+		sCtx.Require().NoError(err, "Remove device failed")
+		sCtx.WithNewAttachment("Ответ", allure.JSON, []byte(res.String()))
 
-		device = res
+		resp = res
 	})
 
-	return device
+	return resp
 }
 
-func createDevice(t provider.T, platform string, userID uint64) (device *act_device_api.CreateDeviceV1Response) {
-	t.WithNewStep("Создание нового устройства", func(sCtx provider.StepCtx) {
-		res, err := client.CreateDeviceV1(context.Background(), &act_device_api.CreateDeviceV1Request{
+func updateDevice(t provider.T, deviceID uint64, platform string, userID uint64) (resp *act_device_api.UpdateDeviceV1Response) {
+	t.WithNewStep(fmt.Sprintf("Обновление устройства %d", deviceID), func(sCtx provider.StepCtx) {
+		req := &act_device_api.UpdateDeviceV1Request{
+			DeviceId: deviceID,
 			Platform: platform,
 			UserId:   userID,
-		})
+		}
+		sCtx.WithNewAttachment("Запрос", allure.JSON, []byte(req.String()))
+		res, err := client.UpdateDeviceV1(context.Background(), req)
 
-		t.Require().NoError(err)
+		sCtx.Require().NoError(err, "Update device failed")
+		sCtx.WithNewAttachment("Ответ", allure.JSON, []byte(res.String()))
 
-		device = res
+		resp = res
 	})
 
-	return device
+	return resp
+}
+
+func getDevice(t provider.T, deviceID uint64) (resp *act_device_api.DescribeDeviceV1Response) {
+	t.WithNewStep(fmt.Sprintf("Получение устройства %d", deviceID), func(sCtx provider.StepCtx) {
+		req := &act_device_api.DescribeDeviceV1Request{
+			DeviceId: deviceID,
+		}
+		sCtx.WithNewAttachment("Запрос", allure.JSON, []byte(req.String()))
+		res, err := client.DescribeDeviceV1(context.Background(), req)
+
+		sCtx.Require().NoError(err, "Устройство должно быть получено")
+		sCtx.WithNewAttachment("Ответ", allure.JSON, []byte(res.String()))
+
+		resp = res
+	})
+
+	return resp
+}
+
+func createDevice(t provider.T, platform string, userID uint64) (resp *act_device_api.CreateDeviceV1Response) {
+	t.WithNewStep("Создание нового устройства", func(sCtx provider.StepCtx) {
+		req := &act_device_api.CreateDeviceV1Request{
+			Platform: platform,
+			UserId:   userID,
+		}
+		sCtx.WithNewAttachment("Запрос", allure.JSON, []byte(req.String()))
+		res, err := client.CreateDeviceV1(context.Background(), req)
+
+		sCtx.Require().NoError(err)
+		sCtx.WithNewAttachment("Ответ", allure.JSON, []byte(res.String()))
+		resp = res
+	})
+
+	return resp
 }
