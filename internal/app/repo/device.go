@@ -3,6 +3,8 @@ package repo
 
 import (
 	"context"
+	"fmt"
+	"github.com/opentracing/opentracing-go/log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -60,7 +62,7 @@ func (r *repo) CreateDevice(ctx context.Context, device *model.Device) (uint64, 
 func (r *repo) DescribeDevice(ctx context.Context, deviceID uint64) (*model.Device, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.device.DescribeDevice")
 	defer span.Finish()
-
+	span.LogFields(log.String("Запрашиваем устройство с ID ", fmt.Sprintf("%d", deviceID)))
 	query := sq.Select("*").PlaceholderFormat(sq.Dollar).
 		From("devices").
 		Where(sq.And{sq.Eq{"id": deviceID}, sq.Eq{"removed": false}})
