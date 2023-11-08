@@ -43,6 +43,11 @@ services:
       - ompnw
     volumes:
       - ./scripts/init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: postgresql
 
   jaeger:
     container_name: jaeger
@@ -82,6 +87,11 @@ services:
     volumes:
       - ./migrations:/root/migrations
       - ./container-config.yml:/root/config.yml
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: act-device-api
 
   swagger-ui:
     container_name: swagger-ui
@@ -98,6 +108,11 @@ services:
       - act-device-api
     networks:
       - ompnw
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: swagger
 
 volumes:
   pgdata:

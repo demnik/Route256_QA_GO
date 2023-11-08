@@ -118,3 +118,7 @@ tools-version:
 	@ protoc --version
 	@ docker --version
 	@ docker-compose --version
+
+.PHONY: allure-report
+allure-report:
+	allure serve ./homework/hw6/test/allure-results

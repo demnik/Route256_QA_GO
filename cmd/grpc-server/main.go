@@ -43,6 +43,7 @@ func main() {
 		log.Print(serv.ListenAndServe())
 	}()
 
+	log.Info().Msg("Dementev NN")
 	log.Info().Msg("Registered 50053")
 
 	if err := config.ReadConfigYML("config.yml"); err != nil {
